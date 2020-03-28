@@ -1,11 +1,11 @@
 package com.creditcard.kafka.controller;
 
 import com.creditcard.kafka.aggregate.CreditCard;
-import com.creditcard.kafka.config.KafkaConfiguration;
 import com.creditcard.kafka.dto.CardRequest;
 import com.creditcard.kafka.dto.TransactionType;
 import com.creditcard.kafka.repository.CardRepository;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.creditcard.kafka.config.KafkaStreamConfig.S1P_SNAPSHOTS_FOR_CARDS;
 import static org.apache.kafka.streams.state.QueryableStoreTypes.keyValueStore;
 
 @RestController
 class CreditCardsController {
+
+    @Value("${kafka.credit-card.snapshot.topic}")
+    private String SNAPSHOTS_FOR_CARDS_TOPIC;
 
     private final StreamsBuilderFactoryBean streamsBuilderFactoryBean;
 
@@ -72,6 +74,6 @@ class CreditCardsController {
 
         return streamsBuilderFactoryBean
                 .getKafkaStreams()
-                .store(S1P_SNAPSHOTS_FOR_CARDS, keyValueStore());
+                .store(SNAPSHOTS_FOR_CARDS_TOPIC, keyValueStore());
     }
 }

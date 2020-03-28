@@ -3,6 +3,7 @@ package com.creditcard.kafka.repository;
 import com.creditcard.kafka.aggregate.CreditCard;
 import com.creditcard.kafka.events.DomainEvent;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,9 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 @Log4j2
 public class CardRepository {
 
-    public static final String S1P_CREDIT_CARDS_EVENTS = "credit-cards-input-event";
+    @Value("${kafka.credit-card.input.topic}")
+    private String CREDIT_CARDS_EVENTS_TOPIC;
+
     private final KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     public CardRepository(KafkaTemplate<String, DomainEvent> kafkaTemplate) {
@@ -28,9 +31,9 @@ public class CardRepository {
         creditCard.eventsFlushed();
     }
 
-    private static ListenableFuture<SendResult<String, DomainEvent>> sendMessage(DomainEvent domainEvent, KafkaTemplate<String, DomainEvent> kafkaTemplate) {
+    private ListenableFuture<SendResult<String, DomainEvent>> sendMessage(DomainEvent domainEvent, KafkaTemplate<String, DomainEvent> kafkaTemplate) {
 
-        ListenableFuture<SendResult<String, DomainEvent>> future = kafkaTemplate.send(S1P_CREDIT_CARDS_EVENTS,domainEvent.aggregateUUID().toString(), domainEvent);
+        ListenableFuture<SendResult<String, DomainEvent>> future = kafkaTemplate.send(CREDIT_CARDS_EVENTS_TOPIC,domainEvent.aggregateUUID().toString(), domainEvent);
 
         future.addCallback(new ListenableFutureCallback<SendResult<String, DomainEvent>>() {
             @Override
