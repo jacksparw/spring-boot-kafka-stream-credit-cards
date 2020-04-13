@@ -55,9 +55,7 @@ public class KafkaStreamConfig {
         Serde<DomainEvent> domainEventSerde = new JsonSerde<>(DomainEvent.class);
         Serde<CreditCard> creditCardSerde = new JsonSerde<>(CreditCard.class);
 
-        return
-                builder
-                        .stream(CREDIT_CARDS_EVENTS_TOPIC, Consumed.with(Serdes.String(), domainEventSerde))
+        return builder.stream(CREDIT_CARDS_EVENTS_TOPIC, Consumed.with(Serdes.String(), domainEventSerde))
                         .groupBy((uuid , event) -> uuid, Grouped.with(Serdes.String(), domainEventSerde))
                         .aggregate(CreditCard::new,
                                 (uuid, domainEvent, aggregateCreditCard) -> aggregateCreditCard.handle(domainEvent),
